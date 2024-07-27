@@ -1,27 +1,34 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../Context/AppContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-const Dashboard = () => {
+const Update = () => {
+    const { id } = useParams();
     const [posts, setPosts] = useState([]);
     const { token, user } = useContext(AppContext);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
     // GETTING POSTS
-    const getPosts = async () => {
-        const res = await fetch("/api/posts");
+    const getPost = async () => {
+        const res = await fetch(`/api/posts/${id}`);
         const data = await res.json();
 
         if (res.ok) {
-            setPosts(data);
+            if (data.post.user_id === user.id) {
+                navigate("/login");
+            }
+            setFormData({
+                title: data.post.title,
+                content: data.post.content,
+            });
         }
     };
 
     useEffect(() => {
-        getPosts();
-    }, []);
+        getPost();
+    }, [id]);
 
     // ADDING POSTS
     const [formData, setFormData] = useState({
@@ -29,10 +36,10 @@ const Dashboard = () => {
         content: "",
     });
 
-    const handleCreatePosts = async (e) => {
+    const handleUpdatePosts = async (e) => {
         e.preventDefault();
-        const res = await fetch("/api/posts", {
-            method: "post",
+        const res = await fetch(`/api/posts/${id}`, {
+            method: "put",
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -44,7 +51,7 @@ const Dashboard = () => {
         if (data.errors) {
             setErrors(data.errors);
         } else {
-            getPosts();
+            getPost();
             setFormData({
                 title: "",
                 content: "",
@@ -63,10 +70,10 @@ const Dashboard = () => {
             <main className="max-w-screen-lg mx-auto p-5 md:p-8">
                 <section className="my-8">
                     <h2 className="text-2xl md:text-3xl font-bold mb-4 text-[#6D72B4]">
-                        Welcome back, @User !
+                        Edit the post
                     </h2>
 
-                    <form className="mb-6" onSubmit={handleCreatePosts}>
+                    <form className="mb-6" onSubmit={handleUpdatePosts}>
                         <div>
                             <label
                                 htmlFor="title"
@@ -113,55 +120,13 @@ const Dashboard = () => {
                             )}
                         </div>
                         <button className="w-30 mt-3 bg-[#6D72B4] text-white py-2 px-4 rounded-md hover:bg-[#5c62a5] focus:outline-none focus:ring-2 focus:ring-[#6D72B4]">
-                            Share something
+                            Edit the post
                         </button>
                     </form>
-
-                    <div>
-                        <h3 className="text-xl md:text-2xl font-semibold mb-4 text-[#6D72B4]">
-                            Recent Posts
-                        </h3>
-                        {user && posts.length > 0 ? (
-                            posts.map((post) => (
-                                <div
-                                    key={post.id}
-                                    className="bg-white rounded-lg shadow-lg p-4 mb-6"
-                                >
-                                    <div className="flex items-center mb-2">
-                                        <div>
-                                            <h4 className="font-semibold text-lg md:text-xl">
-                                                {post.title}
-                                            </h4>
-                                        </div>
-                                    </div>
-                                    <p className="text-gray-800 mb-2 text-base md:text-lg">
-                                        {post.content}
-                                    </p>
-                                    <p className="text-xs pb-2 md:text-sm text-gray-500">
-                                        by @{post.user.username} -{" "}
-                                        {formatDate(post.created_at)}
-                                    </p>
-                                    <div className="flex justify-between text-sm text-gray-600">
-                                        <button className="w-30 bg-[#6D72B4] text-white py-2 px-4 rounded-md hover:bg-[#5c62a5] focus:outline-none focus:ring-2 focus:ring-[#6D72B4]">
-                                            Comment
-                                        </button>
-                                        <Link
-                                            to={`/posts/${post.id}`}
-                                            className="text-lg"
-                                        >
-                                            Read more
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <p>There are no posts</p>
-                        )}
-                    </div>
                 </section>
             </main>
         </div>
     );
 };
 
-export default Dashboard;
+export default Update;

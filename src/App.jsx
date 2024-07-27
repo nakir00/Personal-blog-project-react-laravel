@@ -6,6 +6,8 @@ import Login from "./Components/Pages/Login";
 import Dashboard from "./Components/Pages/Dashboard";
 import { useContext, useEffect } from "react";
 import { AppContext } from "./Context/AppContext";
+import Show from "./Components/Posts/Show";
+import Update from "./Components/Posts/Update";
 
 const App = () => {
     const { user } = useContext(AppContext);
@@ -26,6 +28,13 @@ const App = () => {
                         element={user ? <Dashboard /> : <Login />}
                     />
                     <Route path="/dashboard" element={<Dashboard />} />
+
+                    <Route path="/posts/:id" element={<Show />} />
+
+                    <Route
+                        path="/posts/edit/:id"
+                        element={user ? <Update /> : <Login />}
+                    />
                 </Route>
             </Routes>
         </BrowserRouter>
