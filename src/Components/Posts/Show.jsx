@@ -3,18 +3,27 @@ import { AppContext } from "../../Context/AppContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 const Show = () => {
-    const { id } = useParams();
     const [post, setPost] = useState(null);
-    const { token, user } = useContext(AppContext);
+    const [userMap, setUserMap] = useState({});
+    const { id } = useParams();
+    const { token, user, getUsers } = useContext(AppContext);
     const navigate = useNavigate();
 
-    // GETTING POSTS
     const getPost = async () => {
         const res = await fetch(`/api/posts/${id}`);
         const data = await res.json();
 
         if (res.ok) {
             setPost(data.post);
+            const userIds = data.post.comments.map(
+                (comment) => comment.user_id
+            );
+            const users = await getUsers(userIds);
+            const userMap = users.reduce((map, user) => {
+                map[user.id] = user;
+                return map;
+            }, {});
+            setUserMap(userMap);
         }
     };
 
@@ -27,10 +36,6 @@ const Show = () => {
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    // DELETE POST
-    // DELETE POST
-    // DELETE POST
-
     const handleDelete = async (e) => {
         e.preventDefault();
 
@@ -41,10 +46,30 @@ const Show = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            const data = await res.json();
             if (res.ok) {
                 navigate("/dashboard");
             }
+        }
+    };
+
+    const handleDeleteComments = async (e, commentId) => {
+        e.preventDefault();
+
+        const res = await fetch(`/api/comments/${commentId}`, {
+            method: "delete",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (res.ok) {
+            // Mettre à jour l'état du post après suppression du commentaire
+            setPost((prevPost) => ({
+                ...prevPost,
+                comments: prevPost.comments.filter(
+                    (comment) => comment.id !== commentId
+                ),
+            }));
         }
     };
 
@@ -63,6 +88,7 @@ const Show = () => {
                         {formatDate(post.created_at)}
                     </p>
                     <p className="text-gray-800 text-lg mb-4">{post.content}</p>
+
                     {user && user.id === post.user_id && (
                         <div className="flex items-center justify-end gap-4">
                             <Link
@@ -77,6 +103,43 @@ const Show = () => {
                                 </button>
                             </form>
                         </div>
+                    )}
+                    <h3 className="text-xl md:text-2xl font-semibold mb-4 mt-6">
+                        Comments
+                    </h3>
+                    {post.comments.length > 0 ? (
+                        post.comments.map((comment) => (
+                            <div
+                                key={comment.id}
+                                className="bg-gray-100 p-4 rounded-lg mb-4"
+                            >
+                                <p className="text-gray-800">
+                                    {comment.content}
+                                </p>
+                                <p className="text-gray-600 text-sm">
+                                    Commented by -{" "}
+                                    {formatDate(comment.created_at)}
+                                </p>
+                                {user && user.id === comment.user_id && (
+                                    <div className="flex items-center justify-end gap-4">
+                                        <form
+                                            onSubmit={(e) =>
+                                                handleDeleteComments(
+                                                    e,
+                                                    comment.id
+                                                )
+                                            }
+                                        >
+                                            <button className="text-lg font-bold error">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-600">No comments yet.</p>
                     )}
                 </div>
             ) : (

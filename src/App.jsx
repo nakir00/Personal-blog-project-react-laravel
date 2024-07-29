@@ -8,6 +8,7 @@ import { useContext, useEffect } from "react";
 import { AppContext } from "./Context/AppContext";
 import Show from "./Components/Posts/Show";
 import Update from "./Components/Posts/Update";
+import Comments from "./Components/Posts/Comments";
 
 const App = () => {
     const { user } = useContext(AppContext);
@@ -30,6 +31,7 @@ const App = () => {
                     <Route path="/dashboard" element={<Dashboard />} />
 
                     <Route path="/posts/:id" element={<Show />} />
+                    <Route path="/posts/:id/comments" element={<Comments />} />
 
                     <Route
                         path="/posts/edit/:id"
