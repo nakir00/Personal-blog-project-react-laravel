@@ -9,6 +9,9 @@ import { AppContext } from "./Context/AppContext";
 import Show from "./Components/Posts/Show";
 import Update from "./Components/Posts/Update";
 import Comments from "./Components/Posts/Comments";
+import AllUsers from "./Components/Pages/AllUsers";
+import FriendRequest from "./Components/Pages/FriendRequest";
+import Friends from "./Components/Pages/Friends";
 
 const App = () => {
     const { user } = useContext(AppContext);
@@ -27,6 +30,22 @@ const App = () => {
                     <Route
                         path="/login"
                         element={user ? <Dashboard /> : <Login />}
+                    />
+                    <Route
+                        path="/search/friends"
+                        element={user ? <AllUsers /> : <Login />}
+                    />
+                    <Route
+                        path="/friends/request/:id"
+                        element={user ? <FriendRequest /> : <Login />}
+                    />
+                    <Route
+                        path="/requests"
+                        element={user ? <FriendRequest /> : <Login />}
+                    />
+                    <Route
+                        path="/friends"
+                        element={user ? <Friends /> : <Login />}
                     />
                     <Route path="/dashboard" element={<Dashboard />} />
 

@@ -21,12 +21,15 @@ const Home = () => {
                     SOCIALIZE. Share your moments, follow your interests, and
                     stay updated with the latest news.
                 </p>
-                <Link
-                    to={"/register"}
-                    className="bg-[#6D72B4] text-white py-2 px-4 rounded hover:bg-[#5c62a5] w-full md:w-auto text-center"
-                >
-                    Get Started
-                </Link>
+                <div className="flex gap-4 items-center">
+                    <Link
+                        to={"/register"}
+                        className="bg-[#6D72B4] text-white py-2 px-4 rounded hover:bg-[#5c62a5] w-full md:w-auto text-center"
+                    >
+                        Get Started
+                    </Link>
+                    <Link to={"/login"}>Login</Link>
+                </div>
             </div>
         </div>
     );
