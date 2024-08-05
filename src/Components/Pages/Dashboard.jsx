@@ -16,6 +16,8 @@ const Dashboard = () => {
         const data = await res.json();
 
         if (res.ok) {
+            // console.log(data);
+
             setPosts(data);
         }
     };
@@ -28,6 +30,8 @@ const Dashboard = () => {
     const [formData, setFormData] = useState({
         title: "",
         content: "",
+        image: "",
+        cannot_comment: false,
     });
 
     const handleCreatePosts = async (e) => {
@@ -45,10 +49,13 @@ const Dashboard = () => {
         if (data.errors) {
             setErrors(data.errors);
         } else {
+            console.log(data);
             getPosts();
             setFormData({
                 title: "",
                 content: "",
+                image: "",
+                cannot_comment: false,
             });
             navigate("/dashboard");
         }
@@ -67,7 +74,11 @@ const Dashboard = () => {
                         Welcome back!
                     </h2>
 
-                    <form className="mb-6" onSubmit={handleCreatePosts}>
+                    <form
+                        className="mb-6"
+                        onSubmit={handleCreatePosts}
+                        encType="multipart/form-data"
+                    >
                         <div>
                             <label
                                 htmlFor="title"
@@ -112,11 +123,49 @@ const Dashboard = () => {
                                     {errors.content[0]}
                                 </p>
                             )}
+                            <input
+                                value={formData.image}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        image: e.target.value,
+                                    })
+                                }
+                                className="mt-3"
+                                type="file"
+                                name="image"
+                            />
                         </div>
+
+                        <label
+                            htmlFor=""
+                            className="mt-2 text-sm md:text-base font-medium
+                        text-slate-900 flex items-center gap-2"
+                        >
+                            Disable comments
+                            <input
+                                type="checkbox"
+                                name="cannot_comment"
+                                id=""
+                                className="cursor-pointer"
+                                value={formData.cannot_comment}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        cannot_comment: e.target.checked,
+                                    })
+                                }
+                            />
+                        </label>
                         <button className="w-30 mt-3 bg-[#6D72B4] text-white py-2 px-4 rounded-md hover:bg-[#5c62a5] focus:outline-none focus:ring-2 focus:ring-[#6D72B4]">
                             Share something
                         </button>
                     </form>
+
+                    {/* BODY  */}
+                    {/* BODY  */}
+                    {/* BODY  */}
+                    {/* BODY  */}
 
                     <div>
                         <h3 className="text-xl md:text-2xl font-semibold mb-4 text-[#6D72B4]">
@@ -143,18 +192,21 @@ const Dashboard = () => {
                                         {formatDate(post.created_at)}
                                     </p>
                                     <div className="flex justify-between text-sm text-gray-600">
-                                        <Link
-                                            to={`/posts/${post.id}/comments`}
-                                            className="w-30 bg-[#6D72B4] text-white py-2 px-4 rounded-md hover:bg-[#5c62a5] focus:outline-none focus:ring-2 focus:ring-[#6D72B4]"
-                                        >
-                                            Comment
-                                        </Link>
-                                        <Link
-                                            to={`/posts/${post.id}`}
-                                            className="text-lg"
-                                        >
-                                            Details
-                                        </Link>
+                                        {post.cannot_comment ? (
+                                            <Link
+                                                to={`/posts/${post.id}`}
+                                                className="text-lg"
+                                            >
+                                                Details
+                                            </Link>
+                                        ) : (
+                                            <Link
+                                                to={`/posts/${post.id}/comments`}
+                                                className="w-30 bg-[#6D72B4] text-white py-2 px-4 rounded-md hover:bg-[#5c62a5] focus:outline-none focus:ring-2 focus:ring-[#6D72B4]"
+                                            >
+                                                Comment
+                                            </Link>
+                                        )}
                                     </div>
                                 </div>
                             ))

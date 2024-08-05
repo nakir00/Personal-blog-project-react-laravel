@@ -1,6 +1,0 @@
-  <Link to={"/requests"} className="nav-link">
-                                Requests
-                            </Link>
-                            <Link to={"/friends"} className="nav-link">
-                                Friends
-                            </Link>
