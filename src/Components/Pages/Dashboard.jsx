@@ -30,22 +30,30 @@ const Dashboard = () => {
     const [formData, setFormData] = useState({
         title: "",
         content: "",
-        image: "",
         cannot_comment: false,
     });
+    const [image, setImage]= useState()
 
     const handleCreatePosts = async (e) => {
         e.preventDefault();
+        console.log({formData:formData, image:image});
+        const dataForm = new FormData()
+        dataForm.append('title', formData.title)
+        dataForm.append('content', formData.content)
+        dataForm.append('cannot_comment', formData.cannot_comment)
+        dataForm.append('image', image)
         const res = await fetch("/api/posts", {
             method: "post",
             headers: {
                 Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
             },
-            body: JSON.stringify(formData),
+            body: dataForm,
         });
 
         const data = await res.json();
-
+        console.log(data);
+        
         if (data.errors) {
             setErrors(data.errors);
         } else {
@@ -54,11 +62,11 @@ const Dashboard = () => {
             setFormData({
                 title: "",
                 content: "",
-                image: "",
+                image: null,
                 cannot_comment: false,
             });
-            navigate("/dashboard");
-        }
+           // navigate("/dashboard");
+        } 
     };
 
     const formatDate = (dateString) => {
@@ -67,8 +75,8 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="bg-gray-100 min-h-screen">
-            <main className="max-w-screen-lg mx-auto p-5 md:p-8">
+        <div className="min-h-screen bg-gray-100">
+            <main className="max-w-screen-lg p-5 mx-auto md:p-8">
                 <section className="my-8">
                     <h2 className="text-2xl md:text-3xl font-bold mb-4 text-[#6D72B4]">
                         Welcome back!
@@ -77,12 +85,12 @@ const Dashboard = () => {
                     <form
                         className="mb-6"
                         onSubmit={handleCreatePosts}
-                        encType="multipart/form-data"
+                        //encType="multipart/form-data"
                     >
                         <div>
                             <label
                                 htmlFor="title"
-                                className="block text-sm md:text-base font-medium text-slate-900"
+                                className="block text-sm font-medium md:text-base text-slate-900"
                             >
                                 Post title
                             </label>
@@ -100,7 +108,7 @@ const Dashboard = () => {
                                 }
                             />
                             {errors.title && (
-                                <p className="text-red-500 text-xs mt-1">
+                                <p className="mt-1 text-xs text-red-500">
                                     {errors.title[0]}
                                 </p>
                             )}
@@ -119,17 +127,15 @@ const Dashboard = () => {
                                 }
                             />
                             {errors.content && (
-                                <p className="text-red-500 text-xs mt-1">
+                                <p className="mt-1 text-xs text-red-500">
                                     {errors.content[0]}
                                 </p>
                             )}
                             <input
-                                value={formData.image}
+                                value={image}
                                 onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        image: e.target.value,
-                                    })
+                                    setImage(e.target.files[0]) 
+                                
                                 }
                                 className="mt-3"
                                 type="file"
@@ -139,8 +145,7 @@ const Dashboard = () => {
 
                         <label
                             htmlFor=""
-                            className="mt-2 text-sm md:text-base font-medium
-                        text-slate-900 flex items-center gap-2"
+                            className="flex items-center gap-2 mt-2 text-sm font-medium md:text-base text-slate-900"
                         >
                             Disable comments
                             <input
@@ -175,19 +180,19 @@ const Dashboard = () => {
                             posts.map((post) => (
                                 <div
                                     key={post.id}
-                                    className="bg-white rounded-lg shadow-lg p-4 mb-6"
+                                    className="p-4 mb-6 bg-white rounded-lg shadow-lg"
                                 >
                                     <div className="flex items-center mb-2">
                                         <div>
-                                            <h4 className="font-semibold text-lg md:text-xl">
+                                            <h4 className="text-lg font-semibold md:text-xl">
                                                 {post.title}
                                             </h4>
                                         </div>
                                     </div>
-                                    <p className="text-gray-800 mb-2 text-base md:text-lg">
+                                    <p className="mb-2 text-base text-gray-800 md:text-lg">
                                         {post.content}
                                     </p>
-                                    <p className="text-xs pb-2 md:text-sm text-gray-500">
+                                    <p className="pb-2 text-xs text-gray-500 md:text-sm">
                                         by @{post.user.username} -{" "}
                                         {formatDate(post.created_at)}
                                     </p>
